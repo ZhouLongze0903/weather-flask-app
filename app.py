@@ -4,7 +4,7 @@ import os
 
 app = Flask(__name__, static_folder="static")
 
-tianqikey = os.getenv("22876a8c746b2f788a377c9789d75dc1")
+tianqikey = os.getenv("API_KEY")
 
 @app.route("/")
 def shouye():
