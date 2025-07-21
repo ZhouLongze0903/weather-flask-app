@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>天気検索アプリ</title>
+    <style>
+        body {
+            background-color: #e8f0fe;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            height: 100vh;
+            padding-top: 40px;
+        }
+        .container {
+            width: 500px;
+            background-color: #ffffff;
+            border: 2px solid #000;
+            border-radius: 8px;
+            padding: 25px;
+            box-shadow: 4px 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        input[type="text"] {
+            width: calc(100% - 20px);
+            padding: 10px;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+        .button-group {
+            display: flex;
+            justify-content: space-between;
+        }
+        button {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            margin: 5px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f7f7f7;
+            border: 2px solid #333;
+            min-height: 100px;
+            white-space: pre-wrap;
+        }
+        .icon {
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>天気検索</h1>
+    <input type="text" id="cityInput" placeholder="都市名を入力（例：Tokyo）">
+    <div class="button-group">
+        <button onclick="getWeather()">検索</button>
+        <button onclick="copyText()">コピー</button>
+    </div>
+    <div class="result" id="resultBox">ここに結果が表示されます</div>
+    <div class="icon" id="iconBox"></div>
+</div>
+
+<script>
+    function getWeather() {
+        const city = document.getElementById("cityInput").value.trim();
+        if (!city) return;
+
+        fetch(`/weather?city=${encodeURIComponent(city)}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (data.cod !== 200) {
+                    document.getElementById("resultBox").innerText = "都市が見つかりませんでした";
+                    document.getElementById("iconBox").innerHTML = '';
+                    return;
+                }
+
+                const temp = data.main.temp;
+                const humidity = data.main.humidity;
+                const wind = data.wind.speed;
+                const description = data.weather[0].description;
+                const icon = data.weather[0].icon;
+                const iconUrl = `https://openweathermap.org/img/wn/${icon}@2x.png`;
+
+                const resultText = `都市：${data.name}
+天気：${description}
+気温：${temp} °C
+湿度：${humidity}%
+風速：${wind} m/s`;
+
+                document.getElementById("resultBox").innerText = resultText;
+                document.getElementById("iconBox").innerHTML = `<img src="${iconUrl}" alt="${description}">`;
+            })
+            .catch(() => {
+                document.getElementById("resultBox").innerText = "エラーが発生しました";
+                document.getElementById("iconBox").innerHTML = '';
+            });
+    }
+
+    function copyText() {
+        const text = document.getElementById("resultBox").innerText;
+        navigator.clipboard.writeText(text)
+            .then(() => alert("コピーしました"))
+            .catch(() => alert("コピーできませんでした"));
+    }
+</script>
+</body>
+</html>
